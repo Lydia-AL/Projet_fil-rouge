@@ -1,3 +1,8 @@
+import sys
+import os
+# Ajouter dynamiquement le chemin de la racine du projet
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 import numpy as np
 import pandas as pd
 from src.features.DataProcessing import loaddata, gettesttraindata,PrepareDataForRegression, PrepareDataForClassification
@@ -10,10 +15,9 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 import joblib
 
-
 def GridCVRegression():
     #load data
-    df = loaddata('FinalData.csv')
+    df = loaddata("C:\Users\lydia\Documents\GitHub\dec23_cds_co2\data\processed")
     data, target = PrepareDataForRegression(df,False)
     X_train_scaled,X_test_scaled,y_train,y_test = gettesttraindata(data,target)
 
