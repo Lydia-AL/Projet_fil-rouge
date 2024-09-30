@@ -14,7 +14,7 @@ def PrepareDataForRegression(df,excludeFC:False):
     df.drop_duplicates(inplace=True)
 
     df_Categorielle = df.drop(['Mt', 'Ewltp (g/km)', 'W (mm)', 'At1 (mm)', 'ec (cm3)', 'ep (KW)',
-                            'Erwltp (g/km)'], axis=1)
+                            'Erwltp (g/km)','Fuel consumption '], axis=1)
     if (excludeFC):
         df_quantitative = df[['Mt', 'Ewltp (g/km)', 'W (mm)', 'At1 (mm)', 'ec (cm3)', 'ep (KW)',
                               'Erwltp (g/km)']]
