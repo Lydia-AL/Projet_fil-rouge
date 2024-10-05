@@ -11,9 +11,6 @@ from features.DataProcessing import loaddata, PrepareDataForClassification, gett
 
 from pathlib import Path
 
-<<<<<<< Updated upstream
-st.set_page_config(page_title = "Classification page",layout="wide")
-=======
 st.set_page_config(page_title = "Classification page",layout="wide")
 
 @st.cache_data
@@ -68,4 +65,4 @@ if res :
     st.subheader('Grid search scores',divider=True)
     dfscore = GetGridSearchScore(GridSearchModel)
     st.dataframe(dfscore[["params", "rank_test_score", "mean_test_score", "std_test_score"]])
->>>>>>> Stashed changes
+
