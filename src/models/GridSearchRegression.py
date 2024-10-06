@@ -56,8 +56,8 @@ def GridCVRegression(modeltype):
         params_lr = {'solver': [ 'sag', 'saga', 'lbfgs' ],
                 'C':  [0.1, 1, 10, 100]}
 
-        grid_LR = GridSearchCV( LogisticRegression(), param_grid=params_lr, n_jobs=-1,
-                            cv=2, verbose=1,refit= True)
+        grid_LR = GridSearchCV( LogisticRegression(max_iter=300), param_grid=params_lr, n_jobs=-1,
+                            verbose=1,refit= True)
         grid_LR.fit(X_train_scaled,y_train)
 
         # Save the trained model, StandardScaler, and LabelEncoder for later use
