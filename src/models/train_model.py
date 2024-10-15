@@ -8,9 +8,9 @@ import pandas as pd
 from src.features.DataProcessing import loaddata, gettesttraindata,PrepareDataForRegression, PrepareDataForClassification
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import Ridge
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -27,7 +27,7 @@ def TrainRegression():
 
     #create RandomForestRegressor
     print('train RandomForestRegressor')
-    rf = RandomForestRegressor(criterion = 'poisson', max_depth= 20, n_estimators=150)
+    rf = RandomForestRegressor(criterion = 'friedman_mse', max_depth= 20, n_estimators=100)
     rf.fit(X_train_scaled,y_train)
 
     #Save Model
@@ -44,41 +44,48 @@ def TrainRegression():
     ModelName = Path('models/gbr_model.sav')
     joblib.dump(rf, ModelName)
  
-    #create LogisticRegression
-    print('train LogisticRegression')
-    clf = LogisticRegression(C=1,solver='lbfgs')
-    clf.fit(X_train_scaled,y_train)
+    #create RidgeRegression
+    print('train RidgeRegression')
+    ridge = Ridge(alpha = 0.02, solver='sparse_cg')
+    ridge.fit(X_train_scaled,y_train)
 
     #Save Model
-    ModelName = Path('models/lr_model.sav')
-    joblib.dump(rf, ModelName)
+    ModelName = Path('models/rdg_model.sav')
+    joblib.dump(ridge, ModelName)
 
-def TrainClassification():
+def TrainClassification(modeltype):
     #load data
-    df = loaddata()
+    DataFile = Path('data/processed/FinalData.csv')
+    df = loaddata(DataFile)
     data, target = PrepareDataForClassification(df,False)
     X_train_scaled,X_test_scaled,y_train,y_test = gettesttraindata(data,target)
 
     # create model DecisionTreeClassifier
-    dt_clf = DecisionTreeClassifier(criterion='entropy', max_depth=4,random_state=123)
-    dt_clf.fit(X_train_scaled,y_train)
-    
-    #Save Model
-    joblib.dump(dt_clf, "dt_model.sav")
+    if (modeltype == 'DTC') or (modeltype == 'ALL'):
+        dt_clf = DecisionTreeClassifier(criterion='entropy', max_depth=20, min_samples_split = 10,random_state=123)
+        dt_clf.fit(X_train_scaled,y_train)
+        
+        #Save Model
+        ModelName = Path('models/dtc_model.sav')
+        joblib.dump(dt_clf, ModelName)
 
     #create model GradientBoostingClassifier
-    gb_clf = GradientBoostingClassifier()
-    gb_clf.fit(X_train_scaled,y_train)
-    
-    #Save Model
-    joblib.dump(gb_clf, "gb_model.sav")
+    if (modeltype == 'GBC') or (modeltype == 'ALL'):
+        gb_clf = GradientBoostingClassifier( learning_rate = 0.05, max_depth = 5, n_estimators = 200)
+        gb_clf.fit(X_train_scaled,y_train)
+        
+        #Save Model
+        ModelName = Path('models/gb_model.sav')
+        joblib.dump(gb_clf, ModelName)
 
-    #create model KNeighborsClassifier
-    knn_clf = KNeighborsClassifier(n_neighbors=7,p=2, metric="minkowski")
-    knn_clf.fit(X_train_scaled,y_train)
+    #create model RandomForestClassifier
+    if (modeltype == 'RFC') or (modeltype == 'ALL'):
+        rfc_clf = RandomForestClassifier(criterion = 'gini', max_depth = 20, min_samples_split = 5, n_estimators = 100)
+        rfc_clf.fit(X_train_scaled,y_train)
 
-    #Save Model
-    joblib.dump(knn_clf, "knn_model.sav")
+        #Save Model
+        ModelName = Path('models/rfc_model.sav')
+        joblib.dump(rfc_clf, ModelName)
 
 def TrainDeepLearningClassification():
     print('training deep learning')
@@ -88,7 +95,7 @@ def TrainDeepLearningClassification():
     data, target = PrepareDataForClassification(df,False)
     X_train_scaled,X_test_scaled,y_train,y_test = gettesttraindata(data,target)
 
-    num_var_exp = X_train_scaled.shape[1]
+    #num_var_exp = X_train_scaled.shape[1]
 
     model = Sequential()
 
@@ -101,7 +108,7 @@ def TrainDeepLearningClassification():
     model.add(Dense(32, activation='relu'))
 
     # Part 3 : Output Layer
-    model.add(Dense(num_var_exp, activation='softmax'))
+    model.add(Dense(8, activation='softmax'))
 
     # Loss function 
     model.compile(optimizer="adam", loss='sparse_categorical_crossentropy', metrics=['acc'])
@@ -136,7 +143,7 @@ def TrainDeepLearningRegression():
     model.add(Dense(128, activation='relu'))
 
     # Part 3 : Output Layer
-    model.add(Dense(32, activation='linear'))
+    model.add(Dense(1, activation='linear'))
 
     # Loss function 
     model.compile(optimizer="adam", loss='mean_absolute_error', metrics=['mean_absolute_error'])
@@ -150,6 +157,7 @@ def TrainDeepLearningRegression():
     historyName = Path('models/DeepRegHistory_model.sav')
     joblib.dump(history, historyName)
 
-TrainRegression()
+TrainClassification('ALL')
+#TrainRegression()
 #TrainDeepLearningClassification()
 #TrainDeepLearningRegression()

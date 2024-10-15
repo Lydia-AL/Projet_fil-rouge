@@ -9,12 +9,20 @@ def GetFeatureImportance(model, data):
         feats[feature] = importance
 
     importances = pd.DataFrame.from_dict(feats, orient='index').rename(columns={0: 'Importance'})
-    importances.sort_values(by='Importance', ascending=False)
+    importances = importances.sort_values(by='Importance', ascending=False)
 
-    plot = sns.barplot(x=importances.Importance, y=importances.index)
+    plot = sns.barplot(x=importances.Importance*100, y=importances.index)
    
     return plot
-#, bestparam
+
+def GetFeatureCoef(model, data):
+    # Plot feature importance using Seaborn
+    res = pd.DataFrame({"Variable": data.columns, "Coefficient": model.coef_})
+
+    res = res.sort_values(by='Coefficient', ascending=False)
+    plot =sns.barplot(x=res.Coefficient, y=res.Variable)
+
+    return plot
 
 def GetTestPredictions(model,X_train_scaled,X_test_scaled,y_train,y_test):
     
@@ -28,6 +36,7 @@ def GetTestPredictions(model,X_train_scaled,X_test_scaled,y_train,y_test):
     return plot
 
 def GetGridSearchScore(GCV):
+    
     results_df = pd.DataFrame(GCV.cv_results_)
     results_df = results_df.sort_values(by=["rank_test_score"])
     results_df = results_df.set_index(
