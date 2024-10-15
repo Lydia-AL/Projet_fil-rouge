@@ -6,9 +6,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 import streamlit as st
 import joblib
 import seaborn as sns
-from visualization.RegressionVisualisation import GetFeatureImportance, GetTestPredictions, GetGridSearchScore
+from visualization.RegressionVisualisation import GetFeatureImportance, GetTestPredictions, GetGridSearchScore,GetFeatureCoef
 from features.DataProcessing import loaddata, PrepareDataForRegression,gettesttraindata
 import numpy as np 
+from sklearn.metrics import mean_squared_error
 
 from pathlib import Path
 
@@ -22,9 +23,9 @@ def loadmodel(modelselected):
     elif modelselected == 'Gradient Booting' : 
         modelname = '/models/gbr_model.sav'
         gridsearchname = '/models/gbr_GCV_model.sav'
-    elif modelselected == 'Logistic Regression' : 
-        modelname = '/models/lr_model.sav'
-        gridsearchname = '/models/lr_GCV_model.sav'
+    elif modelselected == 'Ridge Regression' : 
+        modelname = '/models/rdg_model.sav'
+        gridsearchname = '/models/rdg_GCV_model.sav'
     else :
         modelname = ''
 
@@ -47,22 +48,54 @@ def LoadData():
     data, target = PrepareDataForRegression(df,False)
     return data, target
 
-model = st.sidebar.selectbox("Choix du model",('Random Forest','Gradient Booting','Logistic Regression'))
-st.write("model sélectionné:",model)
+@st.cache_data
+def GetPrediction(model, X_train, X_test):
+    res_train =  model.predict(X_train)
+    res_test = model.predict(X_test)
+    return res_train, res_test
 
-res, model, GridSearchModel = loadmodel(model)
+@st.cache_data
+def Getmean_squared_errorTest(_model, X_test, y_test):
+    predtest = _model.predict(X_test)
+    return mean_squared_error(y_test,predtest)
+
+#@st.cache_data
+def Getmean_squared_errorTrain(_model, X_train, y_train):
+    predtrain = _model.predict(X_train)
+    return mean_squared_error(y_train,predtrain)
+
+modeltype = st.sidebar.selectbox("Choix du model",('Random Forest','Gradient Booting','Ridge Regression'))
+st.write("model sélectionné:",modeltype)
+
+res, loaded_model, GridSearchModel = loadmodel(modeltype)
 data , target = LoadData()
 X_train_scaled,X_test_scaled,y_train,y_test = gettesttraindata(data,target)
 
 if res : 
-    st.subheader('Feature importance',divider=True)
-    plot = GetFeatureImportance(model,data)
-    st.pyplot(plot.get_figure())
-
-    st.subheader('Prédiction VS réel',divider=True)
-    plotpred = GetTestPredictions(model,X_train_scaled,X_test_scaled,y_train,y_test)
-    st.pyplot(plotpred.get_figure())
-
     st.subheader('Grid search scores',divider=True)
     dfscore = GetGridSearchScore(GridSearchModel)
     st.dataframe(dfscore[["params", "rank_test_score", "mean_test_score", "std_test_score"]])
+
+    st.subheader('Feature importance',divider=True)
+    if modeltype == 'Ridge Regression':
+        plot = GetFeatureCoef(loaded_model,data)
+        st.pyplot(plot.get_figure())
+    else :
+        plot = GetFeatureImportance(loaded_model,data)
+        st.pyplot(plot.get_figure())
+    
+
+    st.subheader('Prédiction VS réel',divider=True)
+    plotpred = GetTestPredictions(loaded_model,X_train_scaled,X_test_scaled,y_train,y_test)
+    st.pyplot(plotpred.get_figure())
+
+    st.subheader('test overfitting',divider=True)
+    predtrain = loaded_model.predict(X_train_scaled)
+    predtest = loaded_model.predict(X_test_scaled)
+     
+
+    st.write('erreur quadratique moyenne de prédiction des données train : ' ,mean_squared_error(predtrain, y_train))
+    st.write('erreur quadratique moyenne de prédiction des données test : ',mean_squared_error(predtest, y_test))
+
+    #st.write('erreur quadratique moyenne de prédiction des données train : ' ,Getmean_squared_errorTest(loaded_model, X_train_scaled, y_train))
+    #st.write('erreur quadratique moyenne de prédiction des données test : ',Getmean_squared_errorTest(loaded_model, X_test_scaled, y_test))

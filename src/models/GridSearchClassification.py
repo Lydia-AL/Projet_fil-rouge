@@ -63,3 +63,5 @@ def GridCVClassification(modeltype):
         # Save the trained model, StandardScaler, and LabelEncoder for later use
         ModelName = Path('models/rfc_GCV_model.sav')
         joblib.dump(grid_RFC, ModelName)
+
+GridCVClassification('ALL')

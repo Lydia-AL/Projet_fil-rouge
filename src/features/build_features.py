@@ -2,9 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 
-print(os.listdir('../dec23_cds_co2'))
-
-df = pd.read_csv("../dec23_cds_co2/data/raw/data.csv", index_col=0)
+df = pd.read_csv("../dec23_cds_co2/data/raw/data.csv")
 
 # Supression des colonnes à 100% de NA
 for column in df.columns[df.isnull().any()]:
@@ -12,7 +10,8 @@ for column in df.columns[df.isnull().any()]:
         df.drop(column,axis=1, inplace=True)
 
 # Suppression de :     electrique   autre pays que FR et DE   autre que petrol, diesel
-df = df.drop(['z (Wh/km)','Electric range (km)'], axis = 1)
+print(df.columns)
+df = df.drop(['z (Wh/km)','Electric range (km)','Cr','Mk','ID'], axis = 1)
 df = df[df['Country'].isin(['FR','DE']) ]
 df = df[df['Ft'].isin(['petrol','diesel','petrol/electric','lpg','e85','diesel/electric','ng'])]
 
@@ -32,6 +31,8 @@ for column in df.select_dtypes(['int','float']).columns[df.select_dtypes(['int',
         cols.append(column)
         
 df.dropna(subset=cols, inplace=True)    
+df.drop_duplicates(inplace=True)
 
 # Sauvegarde du fichier FinalData.csv
-df.to_csv(path_or_buf='../dec23_cds_co2/data/processed/FinalData.csv')
+print(df.columns)
+df.to_csv(path_or_buf='../dec23_cds_co2/data/processed/FinalData.csv', index=False)

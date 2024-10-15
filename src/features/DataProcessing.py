@@ -5,7 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
 def loaddata(filename):
-    df = pd.read_csv(filename, index_col=0)
+    df = pd.read_csv(filename)
     return(df)
     
 def PrepareDataForRegression(df,excludeFC:False):
@@ -22,13 +22,20 @@ def PrepareDataForRegression(df,excludeFC:False):
         df_quantitative = df[['Mt', 'Ewltp (g/km)', 'W (mm)', 'At1 (mm)', 'ec (cm3)', 'ep (KW)',
                               'Erwltp (g/km)', 'Fuel consumption ']]
 
-    df_quantitative = df_quantitative.fillna(df_quantitative.std()) 
+    df_quantitative['Erwltp (g/km)'] = df_quantitative['Erwltp (g/km)'].fillna(df_quantitative['Erwltp (g/km)'].mean())
+    df_quantitative = df_quantitative.fillna(df_quantitative.median()) 
 
-    df_Categorielle = df_Categorielle.join(pd.get_dummies(df_Categorielle[['Country','Ct','Ft','Cr']]))
-    df_Categorielle = df_Categorielle.drop(['Country','Ct','Ft','Cr'],axis=1)
+    mode_colonne = df_Categorielle['Ct'].mode()[0] 
+    df_Categorielle['Ct'] = df_Categorielle['Ct'].fillna(mode_colonne)
+    mode_colonne = df_Categorielle['IT'].mode()[0] 
+    df_Categorielle['IT'] = df_Categorielle['IT'].fillna(mode_colonne)
+
+
+    df_Categorielle = df_Categorielle.join(pd.get_dummies(df_Categorielle[['Country','Ct','Ft']]))
+    df_Categorielle = df_Categorielle.drop(['Country','Ct','Ft'],axis=1)
 
     le = LabelEncoder()
-    df_Categorielle['Mk'] = le.fit_transform(df_Categorielle['Mk'])
+    #df_Categorielle['Mk'] = le.fit_transform(df_Categorielle['Mk'])
     df_Categorielle['Mh'] = le.fit_transform(df_Categorielle['Mh'])
     df_Categorielle['IT'] = le.fit_transform(df_Categorielle['IT'])
 
