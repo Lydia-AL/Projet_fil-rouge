@@ -27,7 +27,7 @@ def GetConfusionMatrices(model, X_train_scaled, X_test_scaled, y_train, y_test):
     disp_test = ConfusionMatrixDisplay(confusion_matrix=cm_test)
     
     plt.figure(figsize=(8, 8))
-    disp_test.plot(cmap=plt.cm.Blues)
+    plot = disp_test.plot(cmap=plt.cm.Blues)
     plt.title("Matrice de confusion - Données de test")
     plt.show()
 
@@ -42,7 +42,7 @@ def GetConfusionMatrices(model, X_train_scaled, X_test_scaled, y_train, y_test):
     plt.title("Matrice de confusion - Données d'entraînement")
     plt.show()
 
-    return disp_test, disp_train
+    return plot #disp_test, disp_train
 
 
 def GetGridSearchScore(GCV):

@@ -9,6 +9,7 @@ from src.features.DataProcessing import loaddata, gettesttraindata,PrepareDataFo
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Ridge
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -64,4 +65,18 @@ def GridCVRegression(modeltype):
         ModelName = Path('models/lr_GCV_model.sav')
         joblib.dump(grid_LR, ModelName)
 
-GridCVRegression('LR')
+    if (modeltype == 'RDG') or (modeltype == 'ALL'):
+
+        param_RDG = {'alpha' : [0.01, 0.02, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
+              'solver' : ['auto', 'svd','cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga']}
+
+        grid_RDG = GridSearchCV(Ridge(), param_grid=param_RDG, n_jobs=-1,
+                            verbose=1,refit= True)
+        grid_RDG.fit(X_train_scaled,y_train)
+
+        # Save the trained model, StandardScaler, and LabelEncoder for later use
+        ModelName = Path('models/rdg_GCV_model.sav')
+        joblib.dump(grid_RDG, ModelName)
+
+
+GridCVRegression('RDG')
