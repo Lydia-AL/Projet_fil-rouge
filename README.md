@@ -1,4 +1,18 @@
-Project Name
+# 🚗 Analyse des émissions de CO₂ des véhicules avec la Data Science 🌍
+Ce projet explore les facteurs influençant les émissions de CO₂ des véhicules à partir de données techniques (consommation de carburant, puissance du moteur, etc.). Il applique des modèles de machine learning et propose des recommandations pour réduire ces émissions.
+
+## 📊 Données & Méthodologie  
+Les données utilisées proviennent de l’**European Environment Agency (EEA)**, qui recense les émissions de CO₂ des véhicules en Europe. Elles incluent des informations sur la consommation de carburant, le type de carburant, la puissance du moteur et la masse totale du véhicule.  
+
+
+## 📊 Données & Méthodologie
+- **Exploration** : Visualisations et analyses des tendances.
+- **Pré-processing** : Nettoyage des données et transformation des variables.
+- **Modélisation** : Régression (Random Forest, Gradient Boosting, Ridge) et classification.
+- **Deep Learning** : Test d’un réseau de neurones.
+- **Déploiement** : Présentation interactive sur Streamlit.
+
+
 ==============================
 
 This repo is a Starting Pack for DS projects. You can rearrange the structure to make it fits your project.
